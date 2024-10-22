@@ -1,0 +1,72 @@
+syntax = "proto3";
+package adoption;
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.project.pet.adoption.application.dto";
+option java_outer_classname = "AdoptionProviderProto";
+option objc_class_prefix = "RTG";
+
+
+service AdoptionService {
+  // Receives an email and returns all associated adoptions on
+  rpc GetAdoptionsByEmail (AdoptionEmailRequest) returns (stream AdoptionResponse);
+
+  // Retrieves all adoptions for multiple emails
+  rpc GetAdoptionsByEmails (stream AdoptionEmailRequest) returns (stream AdoptionResponse);
+
+  // Create an adoption
+  rpc CreateAdoption (CreateAdoptionRequest) returns (AdoptionCreateResponse);
+
+  // Updates an existing adoption
+  rpc UpdateAdoption (UpdateAdoptionRequest) returns (AdoptionUpdateResponse);
+
+  // Deletes an adoption
+  rpc DeleteAdoption (DeleteAdoptionRequest) returns (DeleteAdoptionResponse);
+
+}
+
+message Adoption {
+  uint64 id = 1;
+  string email = 2;
+  uint64 pet_id = 3;
+  google.protobuf.Timestamp date_adoption = 4;
+}
+
+message AdoptionEmailRequest {
+  string email = 1;  // user email to find adoptions
+}
+message AdoptionResponse {
+  repeated Adoption adoptions = 1;
+}
+
+message CreateAdoptionRequest {
+  string email = 1;                            // user email that adopts
+  uint64 pet_id = 2;                            // pet id to adopted
+  google.protobuf.Timestamp date_adoption = 3; // date that is generate the adoptions
+}
+
+message AdoptionCreateResponse {
+  string response = 1;  // message of successfully creations
+  uint64 id = 2;         // id of adoption created
+}
+
+message UpdateAdoptionRequest {
+  uint64 id = 1;                    //adoption id to updated
+  repeated Adoption adoptions = 2; //info updated
+}
+
+message AdoptionUpdateResponse {
+  string response = 1;
+}
+
+message DeleteAdoptionRequest {
+  uint64 id = 1;
+}
+
+message DeleteAdoptionResponse {
+  bool success = 1;
+}
+
+
+

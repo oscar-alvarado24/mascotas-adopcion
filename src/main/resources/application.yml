@@ -1,0 +1,17 @@
+
+spring:
+  application:
+    name: adoption
+
+  profiles:
+    include: local
+    active: local
+cors:
+  allowed-origins: "http://localhost:4200,http://localhost:8050"
+grpc:
+  server:
+    port: 8050
+    security:
+      enabled: false
+    reflection-service-enabled: true
+    max-inbound-message-size: '4MB'
