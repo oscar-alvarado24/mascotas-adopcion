@@ -3,7 +3,7 @@ package adoption;
 import "google/protobuf/timestamp.proto";
 
 option java_multiple_files = true;
-option java_package = "com.project.pet.adoption.application.dto";
+option java_package = "com.project.adoption.pet.application.dto";
 option java_outer_classname = "AdoptionProviderProto";
 option objc_class_prefix = "RTG";
 
