@@ -6,6 +6,7 @@ import com.project.adoption.pet.application.dto.AdoptionResponse;
 import com.project.adoption.pet.application.dto.AdoptionUpdateResponse;
 import com.project.adoption.pet.application.dto.CreateAdoptionRequest;
 import com.project.adoption.pet.application.dto.DeleteAdoptionResponse;
+import com.project.adoption.pet.application.dto.MultipleEmailsResponse;
 import com.project.adoption.pet.common.util.Constants;
 import com.project.adoption.pet.domain.model.Adoption;
 import org.mapstruct.Mapper;
@@ -15,28 +16,30 @@ import org.mapstruct.factory.Mappers;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, unmappedSourcePolicy = ReportingPolicy.IGNORE)
 public interface IAdoptionMapper {
     IAdoptionMapper INSTANCE = Mappers.getMapper(IAdoptionMapper.class);
 
-    default AdoptionResponse toAdoptionResponse(Adoption adoption){
+    default AdoptionResponse toAdoptionResponse(List<Adoption> adoption, String email){
         if (adoption == null) return null;
         return AdoptionResponse.newBuilder()
-                .addAdoptions(toAdoptionDto(adoption))
+                .setEmail(email)
+                .addAllAdoptions(toAdoptionDtoList(adoption))
                 .build();
     }
-    default com.project.adoption.pet.application.dto.Adoption toAdoptionDto(Adoption adoption){
+    List<com.project.adoption.pet.application.dto.AdoptionWithoutEmail> toAdoptionDtoList(List<Adoption> adoption);
+    default com.project.adoption.pet.application.dto.AdoptionWithoutEmail toAdoptionWithoutEmail(Adoption adoption){
         if (adoption == null) return null;
-        return com.project.adoption.pet.application.dto.Adoption.newBuilder()
+        return com.project.adoption.pet.application.dto.AdoptionWithoutEmail.newBuilder()
                 .setId(adoption.getId())
-                .setEmail(adoption.getEmail())
                 .setPetId(adoption.getPetId())
                 .setDateAdoption(localDateToTimestamp(adoption.getDateAdoption()))
                 .build();
     }
-    List<AdoptionResponse> toAdoptionResponseList(List<Adoption> adoption);
 
     default Adoption toAdoptionModel(com.project.adoption.pet.application.dto.Adoption adoptionRequest){
         if(adoptionRequest == null) return null;
@@ -77,6 +80,20 @@ public interface IAdoptionMapper {
         return Timestamp.newBuilder()
                 .setSeconds(instant.getEpochSecond())
                 .setNanos(instant.getNano())
+                .build();
+    }
+
+    default MultipleEmailsResponse toMultipleEmailsResponse(Map<String, List<Adoption>> adoptionsByEmails){
+        List<AdoptionResponse> adoptionResponses = new ArrayList<>();
+        adoptionsByEmails.forEach((email, adoptions) -> {
+            AdoptionResponse adoptionResponse = AdoptionResponse.newBuilder()
+                    .setEmail(email)
+                    .addAllAdoptions(toAdoptionDtoList(adoptions))
+                    .build();
+            adoptionResponses.add(adoptionResponse);
+        });
+        return MultipleEmailsResponse.newBuilder()
+                .addAllAdoptionResponses(adoptionResponses)
                 .build();
     }
 }

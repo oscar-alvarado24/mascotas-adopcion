@@ -5,6 +5,7 @@ import com.project.adoption.pet.domain.model.Adoption;
 import com.project.adoption.pet.domain.spi.IAdoptionPersistencePort;
 
 import java.util.List;
+import java.util.Map;
 
 public class AdoptionUseCase implements IAdoptionServicePort {
 
@@ -49,6 +50,15 @@ public class AdoptionUseCase implements IAdoptionServicePort {
     @Override
     public boolean deleteAdoption(Long adoptionId) {
         return adoptionPersistencePort.deleteAdoption(adoptionId);
+    }
+
+    /**
+     * @param emails
+     * @return
+     */
+    @Override
+    public Map<String, List<Adoption>> getAdoptionsByEmails(List<String> emails) {
+        return adoptionPersistencePort.getAdoptionsByEmails(emails);
     }
 }
 

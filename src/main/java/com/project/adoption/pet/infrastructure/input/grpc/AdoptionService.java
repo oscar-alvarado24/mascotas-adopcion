@@ -9,6 +9,8 @@ import com.project.adoption.pet.application.dto.AdoptionUpdateResponse;
 import com.project.adoption.pet.application.dto.CreateAdoptionRequest;
 import com.project.adoption.pet.application.dto.DeleteAdoptionRequest;
 import com.project.adoption.pet.application.dto.DeleteAdoptionResponse;
+import com.project.adoption.pet.application.dto.MultipleEmailsRequest;
+import com.project.adoption.pet.application.dto.MultipleEmailsResponse;
 import com.project.adoption.pet.application.dto.UpdateAdoptionRequest;
 import com.project.adoption.pet.application.handler.IAdoptionHandler;
 import com.project.adoption.pet.common.util.Constants;
@@ -26,7 +28,11 @@ public class AdoptionService extends AdoptionServiceGrpc.AdoptionServiceImplBase
 
     private final IAdoptionHandler adoptionHandler;
 
-
+    /**
+     *
+     * @param request  CreateAdoptionRequest with the adoption to be created
+     * @param responseObserver
+     */
     @Override
     public void createAdoption(CreateAdoptionRequest request, StreamObserver<AdoptionCreateResponse> responseObserver) {
         try {
@@ -42,13 +48,28 @@ public class AdoptionService extends AdoptionServiceGrpc.AdoptionServiceImplBase
     @Override
     public void getAdoptionsByEmail(AdoptionEmailRequest request, StreamObserver<AdoptionResponse> responseObserver) {
         try {
-            List<AdoptionResponse> adoptions = adoptionHandler.getAdoptionsByEmail(request.getEmail());
-            adoptions.forEach(responseObserver::onNext);
+            AdoptionResponse adoptions = adoptionHandler.getAdoptionsByEmail(request.getEmail());
+            responseObserver.onNext(adoptions);
             responseObserver.onCompleted();
         } catch (Exception e) {
             log.error("Error getting adoptions by email: ", e);
             responseObserver.onError(e);
         }
+    }
+
+    /**
+     * <pre>
+     * Retrieves all adoptions for multiple emails
+     * </pre>
+     *
+     * @param request
+     * @param responseObserver
+     */
+    @Override
+    public void getAdoptionsByEmails(MultipleEmailsRequest request, StreamObserver<MultipleEmailsResponse> responseObserver) {
+       MultipleEmailsResponse adoptions = adoptionHandler.getAdoptionsByEmails(request.getEmailsList());
+        responseObserver.onNext(adoptions);
+        responseObserver.onCompleted();
     }
 
     @Override
@@ -75,32 +96,6 @@ public class AdoptionService extends AdoptionServiceGrpc.AdoptionServiceImplBase
         }
     }
 
-    @Override
-    public StreamObserver<AdoptionEmailRequest> getAdoptionsByEmails(StreamObserver<AdoptionResponse> responseObserver) {
-        return new StreamObserver<>() {
-            @Override
-            public void onNext(AdoptionEmailRequest adoptionEmailRequest) {
-                try {
-                    List<AdoptionResponse> adoptions = adoptionHandler.getAdoptionsByEmail(adoptionEmailRequest.getEmail());
-                    adoptions.forEach(responseObserver::onNext);
-                } catch (Exception e) {
-                    log.error("Error in stream processing: ", e);
-                    responseObserver.onError(e);
-                }
-            }
 
-            @Override
-            public void onError(Throwable throwable) {
-                log.error("Stream error: ", throwable);
-                responseObserver.onError(throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                log.info(Constants.MSG_ON_COMPLETED);
-                responseObserver.onCompleted();
-            }
-        };
-    }
 }
 

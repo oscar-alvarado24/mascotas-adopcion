@@ -10,10 +10,10 @@ option objc_class_prefix = "RTG";
 
 service AdoptionService {
   // Receives an email and returns all associated adoptions on
-  rpc GetAdoptionsByEmail (AdoptionEmailRequest) returns (stream AdoptionResponse);
+  rpc GetAdoptionsByEmail (AdoptionEmailRequest) returns ( AdoptionResponse);
 
   // Retrieves all adoptions for multiple emails
-  rpc GetAdoptionsByEmails (stream AdoptionEmailRequest) returns (stream AdoptionResponse);
+  rpc GetAdoptionsByEmails ( MultipleEmailsRequest) returns ( MultipleEmailsResponse);
 
   // Create an adoption
   rpc CreateAdoption (CreateAdoptionRequest) returns (AdoptionCreateResponse);
@@ -37,9 +37,21 @@ message AdoptionEmailRequest {
   string email = 1;  // user email to find adoptions
 }
 message AdoptionResponse {
-  repeated Adoption adoptions = 1;
+  string email =1;
+  repeated AdoptionWithoutEmail adoptions = 2;
 }
 
+message AdoptionWithoutEmail {
+  uint64 id = 1;
+  uint64 pet_id = 2;
+  google.protobuf.Timestamp date_adoption = 3;
+}
+message MultipleEmailsRequest {
+  repeated AdoptionEmailRequest emails = 1;
+}
+message MultipleEmailsResponse {
+  repeated AdoptionResponse adoptionResponses = 1;
+}
 message CreateAdoptionRequest {
   string email = 1;                            // user email that adopts
   uint64 pet_id = 2;                            // pet id to adopted

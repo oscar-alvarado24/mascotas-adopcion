@@ -1,17 +1,20 @@
 package com.project.adoption.pet.application.handler;
 
 import com.project.adoption.pet.application.dto.AdoptionCreateResponse;
+import com.project.adoption.pet.application.dto.AdoptionEmailRequest;
 import com.project.adoption.pet.application.dto.AdoptionResponse;
 import com.project.adoption.pet.application.dto.AdoptionUpdateResponse;
 import com.project.adoption.pet.application.dto.CreateAdoptionRequest;
 import com.project.adoption.pet.application.dto.DeleteAdoptionRequest;
 import com.project.adoption.pet.application.dto.DeleteAdoptionResponse;
+import com.project.adoption.pet.application.dto.MultipleEmailsResponse;
 import com.project.adoption.pet.application.dto.UpdateAdoptionRequest;
 import com.project.adoption.pet.application.mapper.IAdoptionMapper;
 import com.project.adoption.pet.domain.api.IAdoptionServicePort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -24,8 +27,8 @@ public class AdoptionHandler implements IAdoptionHandler{
      * @return list adoptions
      */
     @Override
-    public List<AdoptionResponse> getAdoptionsByEmail(String email) {
-        return adoptionMapper.toAdoptionResponseList(adoptionService.getAdoptionsByEmail(email));
+    public AdoptionResponse getAdoptionsByEmail(String email) {
+        return adoptionMapper.toAdoptionResponse(adoptionService.getAdoptionsByEmail(email), email);
     }
 
     /**
@@ -53,6 +56,17 @@ public class AdoptionHandler implements IAdoptionHandler{
     @Override
     public DeleteAdoptionResponse deleteAdoption(DeleteAdoptionRequest adoptionRequest) {
         return adoptionMapper.toDeleteAdoptionResponse(adoptionService.deleteAdoption(adoptionRequest.getId()));
+    }
+
+    /**
+     * @param emailsList
+     * @return
+     */
+    @Override
+    public MultipleEmailsResponse getAdoptionsByEmails(List<AdoptionEmailRequest> emailsList) {
+        List<String> emails= new ArrayList<>();
+        emailsList.forEach(email -> emails.add(email.getEmail()));
+        return adoptionMapper.toMultipleEmailsResponse(adoptionService.getAdoptionsByEmails(emails));
     }
 }
 

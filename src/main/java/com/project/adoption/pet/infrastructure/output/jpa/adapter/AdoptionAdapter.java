@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Slf4j
 public class AdoptionAdapter implements IAdoptionPersistencePort {
@@ -59,6 +62,17 @@ public class AdoptionAdapter implements IAdoptionPersistencePort {
         adoptionEntity.setActive(Boolean.FALSE);
         adoptionRepository.save(adoptionEntity);
         return Boolean.TRUE;
+    }
+
+    /**
+     * @param emails of users to get adoptions
+     * @return map of emails and their corresponding adoptions
+     */
+    @Override
+    public Map<String, List<Adoption>> getAdoptionsByEmails(List<String> emails) {
+        List<Adoption> adoptions = adoptionMapper.toAdoptionList(adoptionRepository.findByEmailIn(emails));
+        return adoptions.stream()
+                .collect(Collectors.groupingBy(Adoption::getEmail));
     }
 }
 

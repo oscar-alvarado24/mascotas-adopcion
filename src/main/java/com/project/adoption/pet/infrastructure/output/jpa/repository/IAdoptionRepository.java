@@ -7,4 +7,6 @@ import java.util.List;
 @Repository
 public interface IAdoptionRepository extends JpaRepository<AdoptionEntity, Long> {
     List<AdoptionEntity> findByEmail(String email);
+
+    List<AdoptionEntity> findByEmailIn(List<String> emails);
 }
